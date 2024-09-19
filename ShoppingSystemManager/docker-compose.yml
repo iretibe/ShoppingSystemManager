@@ -1,0 +1,12 @@
+services:
+  shoppingproductdb:
+    image: postgres
+
+volumes:
+  postgres_product:
+
+  # shoppingsystem.product.api:
+  #   image: ${DOCKER_REGISTRY-}shoppingsystemproductapi
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Product/ShoppingSystem.Product.API/Dockerfile

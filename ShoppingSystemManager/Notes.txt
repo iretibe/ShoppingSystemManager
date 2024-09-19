@@ -1,0 +1,1271 @@
+Product API using Vertical Slice Architecture
+
+Product API: http: 1000 & https: 1050
+
+
+Vertical Slice Architecture is a design pattern used to structure microservices and applications, particularly beneficial for handling complex domains by organizing code around features or "slices" rather than layers like MVC or DDD. 
+
+1. Understanding Vertical Slice Architecture
+In Vertical Slice Architecture, each feature or use case is implemented as a standalone "slice" that contains all the necessary components to handle that feature. This contrasts with traditional layered architecture where you separate concerns into different layers (e.g., controllers, services, repositories).
+
+2. Benefits
+- Encapsulation: Each slice encapsulates everything needed for a specific feature, making it easier to manage and understand.
+- Decoupling: Reduces dependencies between different parts of the application.
+- Modularity: Makes it easier to develop, test, and deploy features independently.
+- Scalability: Each slice can be scaled independently.
+
+3. Structure of a Vertical Slice
+Typically, a vertical slice might include:
+- Request Model: Defines the data needed to process a request.
+- Handler: Contains the business logic and processes the request.
+- Repository/Storage: Manages data access (can be an in-memory store or database).
+- Response Model: Defines the data returned to the client.
+- Controller/Endpoint: Exposes the feature as an HTTP endpoint (if it's a web application).
+
+4. Example Implementation in .NET Core Microservices
+
+Here's a basic example of how you might structure a vertical slice in a .NET Core application:
+
+#Project Structure
+```
+/src
+    /FeatureA
+        /Commands
+            CreateFeatureACommand.cs
+            CreateFeatureACommandHandler.cs
+        /Queries
+            GetFeatureAQuery.cs
+            GetFeatureAQueryHandler.cs
+        /Models
+            FeatureAModel.cs
+        /Endpoints
+            FeatureAController.cs
+    /FeatureB
+        ...
+```
+
+#Example Code
+
+1. Command Model (`CreateFeatureACommand.cs`)
+   ```csharp
+   public class CreateFeatureACommand : IRequest<CreateFeatureAResponse>
+   {
+       public string Data { get; set; }
+   }
+   ```
+
+2. Command Handler (`CreateFeatureACommandHandler.cs`)
+   ```csharp
+   public class CreateFeatureACommandHandler : IRequestHandler<CreateFeatureACommand, CreateFeatureAResponse>
+   {
+       private readonly IFeatureARepository _repository;
+
+       public CreateFeatureACommandHandler(IFeatureARepository repository)
+       {
+           _repository = repository;
+       }
+
+       public async Task<CreateFeatureAResponse> Handle(CreateFeatureACommand request, CancellationToken cancellationToken)
+       {
+           var featureA = new FeatureA { Data = request.Data };
+           await _repository.AddAsync(featureA);
+           return new CreateFeatureAResponse { Id = featureA.Id };
+       }
+   }
+   ```
+
+3. Response Model (`CreateFeatureAResponse.cs`)
+   ```csharp
+   public class CreateFeatureAResponse
+   {
+       public int Id { get; set; }
+   }
+   ```
+
+4. Controller/Endpoint (`FeatureAController.cs`)
+   ```csharp
+   [ApiController]
+   [Route("api/[controller]")]
+   public class FeatureAController : ControllerBase
+   {
+       private readonly IMediator _mediator;
+
+       public FeatureAController(IMediator mediator)
+       {
+           _mediator = mediator;
+       }
+
+       [HttpPost]
+       public async Task<IActionResult> Create([FromBody] CreateFeatureACommand command)
+       {
+           var response = await _mediator.Send(command);
+           return Ok(response);
+       }
+   }
+   ```
+
+5. Integrating with Microservices
+In a microservices architecture, each microservice can implement its own vertical slices. Each slice is responsible for a specific aspect of the service’s functionality, and the services communicate with each other through APIs or message brokers.
+
+- Service Boundaries: Ensure each microservice is responsible for its own vertical slices and data.
+- API Gateway: You might use an API Gateway to route requests to appropriate microservices.
+
+6. Testing and Deployment
+- Unit Testing: Test each slice independently to ensure it works as expected.
+- Integration Testing: Test interactions between slices within a service and between different services.
+- Deployment: Each vertical slice can be deployed as part of the overall service.
+
+7. Tools and Libraries
+- MediatR: For handling commands and queries.
+- AutoMapper: For mapping between models.
+- FluentValidation: For request validation.
+- Swagger: For API documentation.
+
+Vertical Slice Architecture helps in managing complex applications by providing a clear separation of concerns and making each slice responsible for a specific feature or use case.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Vertical Slice Architecture and Clean Architecture are two different approaches for structuring applications, particularly in a microservices context. Both aim to improve modularity, maintainability, and separation of concerns, but they differ in how they organize and approach these goals.
+
+1. Overview of Both Architectures
+#Vertical Slice Architecture
+Vertical Slice Architecture is focused on dividing an application by features or business capabilities, rather than technical layers (e.g., controllers, services, repositories). Each slice contains everything needed to handle a particular feature or business use case, including its own command, handler, and data access logic.
+
+#Clean Architecture
+Clean Architecture is based on organizing code by layers of responsibility, with a strong emphasis on separating the core business logic (domain) from the infrastructure (data access, UI). It uses concentric layers, with the innermost layers (business rules) being the most isolated from external dependencies.
+
+------
+
+2. Comparison Between Vertical Slice Architecture and Clean Architecture
+
+| Aspect                         | Vertical Slice Architecture                                      | Clean Architecture                                             |
+|---------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|
+| Organization                | Organized by features (slices), each handling a business use case | Organized by layers (domain, application, infrastructure, UI)  |
+| Primary Focus               | Focuses on business logic and isolating each feature             | Focuses on separation of concerns between layers               |
+| Code Structure              | Each feature contains its own logic (commands, queries, handlers, etc.) | Layers are separated (e.g., controllers, services, repositories)   |
+| Independence                | Each slice is independent, meaning changes to one slice do not affect others | Inner layers (domain) are highly independent of external layers    |
+| Testing                     | Easier to test individual slices, as each slice is self-contained    | Core logic (domain) is easy to unit test without infrastructure dependencies |
+| Reusability                 | Slices are self-contained, making reusability limited within a slice | Core business rules are highly reusable across different services or UI   |
+| Flexibility                 | Focused on delivering features quickly, as all feature logic is in one place | Flexible for different UI types (e.g., web, mobile) by keeping domain logic separate |
+| Separation of Concerns      | Concerns are separated by features, not by layers                | Concerns are separated by layers (application, domain, infrastructure)   |
+| Complexity                  | Simpler and faster to implement for individual features              | Requires more upfront design and infrastructure setup              |
+| Development Speed           | High speed for feature delivery, especially for independent services | Initial setup may be slower, but scales well for long-term projects |
+| Scaling                     | Scales well for adding new features (slices)                     | Scales well for maintaining large systems with well-defined boundaries |
+| Microservices               | Suitable for microservices with single responsibilities per service | Suitable for microservices with multiple layers but shared domain logic |
+| Example                     | A feature like "CreateOrder" would include all logic (command, handler, repository) in one place | A feature like "CreateOrder" would pass through multiple layers, like domain and application services |
+
+---
+
+3. When to Use Vertical Slice Architecture vs Clean Architecture in .NET Core Microservices
+#Vertical Slice Architecture is ideal when:
+- Your system is built around distinct features or business capabilities.
+- You want to quickly add new features without worrying about global layers.
+- The system is relatively simple or each microservice is responsible for a specific business function.
+- You're aiming for high cohesion within individual slices and minimal coupling between slices.
+- You prefer each microservice or module to be independent and focus on delivering specific features.
+
+#Clean Architecture is ideal when:
+- You want to maintain separation of concerns and keep business logic isolated from infrastructure.
+- Your system needs to scale for long-term maintainability and reuse of business logic across multiple user interfaces (web, mobile, etc.).
+- You want to focus on testability by isolating core logic from external dependencies.
+- You're dealing with complex domains where separation of concerns is critical.
+- You prefer a layered approach to ensure that domain and application logic remain independent from infrastructure concerns.
+
+---
+
+4. How Vertical Slice and Clean Architecture Can Coexist
+In microservices, both architectures can be combined effectively:
+- Vertical Slices within a Clean Architecture: You can organize each feature into a vertical slice while still adhering to the principles of Clean Architecture. For example, each slice can have its own domain, application, and infrastructure layers.
+- Clean Architecture for Core Domains and Vertical Slices for Services: In a microservices system, you can use Clean Architecture for the core business domains (shared across services) and Vertical Slice for feature-specific services where independence is important.
+
+---
+
+5. Example Structure of Each in .NET Core Microservices
+#Vertical Slice Architecture in a .NET Core Microservice
+```
+/src
+   /Orders
+       /Commands
+           CreateOrderCommand.cs
+           CreateOrderCommandHandler.cs
+       /Queries
+           GetOrderQuery.cs
+           GetOrderQueryHandler.cs
+       /Models
+           OrderModel.cs
+       /Repositories
+           OrderRepository.cs
+       /Endpoints
+           OrdersController.cs
+```
+- Each feature slice (like `Orders`) has its own commands, queries, and repositories, and is independent of other features.
+
+#Clean Architecture in a .NET Core Microservice
+```
+/src
+   /Domain
+       /Entities
+           Order.cs
+       /Services
+           IOrderService.cs
+   /Application
+       /Commands
+           CreateOrderCommand.cs
+       /Handlers
+           CreateOrderCommandHandler.cs
+   /Infrastructure
+       /Repositories
+           OrderRepository.cs
+   /Web
+       /Controllers
+           OrdersController.cs
+```
+- The code is layered: domain entities and services are separate from the application and infrastructure.
+
+---
+
+6. Final Thoughts
+- Vertical Slice Architecture is great for microservices because it isolates features and reduces complexity for individual features.
+- Clean Architecture is ideal for long-term scalability, ensuring a clear separation of concerns and making it easier to maintain and extend large systems.
+- In microservices architectures, the two approaches can complement each other: Vertical Slices for individual microservices or bounded contexts, and Clean Architecture for more shared, domain-centric microservices or parts of the system where reuse and flexibility are essential.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Implementing a School Management System using Vertical Slice Architecture in .NET Core Microservices allows you to break the application into self-contained, feature-based components. Each feature can handle a specific aspect of school management, such as student registration, class management, or teacher assignments. Each vertical slice will encapsulate its own data, logic, and endpoints, ensuring high cohesion and low coupling.
+
+Here’s a guide on how to structure a School Management System using Vertical Slice Architecture within .NET Core Microservices.
+
+---
+
+### 1. High-Level Architecture
+
+The School Management System can be divided into the following microservices, each responsible for a domain-specific area:
+- Student Service: Manages student registration, profiles, and grades.
+- Teacher Service: Manages teacher assignments, profiles, and schedules.
+- Classroom Service: Handles class schedules, assignments, and classroom management.
+- Administration Service: Manages school-wide policies, holidays, events, and notifications.
+- Attendance Service: Tracks student and teacher attendance.
+
+Each service can be built using Vertical Slice Architecture, where each business feature is handled in a self-contained vertical slice, from the HTTP request down to the data layer.
+
+---
+
+### 2. Example: Student Service Using Vertical Slice Architecture
+
+Let’s assume we are building the Student Service for the School Management System. This service will handle student registration, profile management, and grade tracking.
+
+#### Key Features for Student Service
+- Register Student: A feature to register new students.
+- Get Student Profile: Retrieve student details.
+- Update Student Information: Modify existing student data.
+- Assign Grades: Handle the assignment of grades to students.
+
+#### Directory Structure
+The student service can be structured like this:
+
+```
+/src
+   /Features
+       /RegisterStudent
+           RegisterStudentCommand.cs
+           RegisterStudentHandler.cs
+           RegisterStudentRequest.cs
+           RegisterStudentResponse.cs
+           RegisterStudentValidator.cs
+       /GetStudentProfile
+           GetStudentProfileQuery.cs
+           GetStudentProfileHandler.cs
+           GetStudentProfileResponse.cs
+       /AssignGrades
+           AssignGradesCommand.cs
+           AssignGradesHandler.cs
+           AssignGradesResponse.cs
+   /Models
+       Student.cs
+   /Infrastructure
+       /Persistence
+           StudentDbContext.cs
+           StudentRepository.cs
+   /API
+       StudentsController.cs
+```
+
+Each folder under `Features` represents a vertical slice, encapsulating everything related to that particular feature, including requests, handlers, and responses.
+
+---
+
+### 3. Sample Code for a Vertical Slice (Registering a Student)
+
+#### Command (RegisterStudentCommand.cs)
+
+This defines the request for registering a new student.
+
+```csharp
+public class RegisterStudentCommand : IRequest<RegisterStudentResponse>
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTime DateOfBirth { get; set; }
+    public string Email { get; set; }
+}
+```
+
+#### Command Handler (RegisterStudentHandler.cs)
+
+The handler processes the registration logic.
+
+```csharp
+public class RegisterStudentHandler : IRequestHandler<RegisterStudentCommand, RegisterStudentResponse>
+{
+    private readonly IStudentRepository _studentRepository;
+
+    public RegisterStudentHandler(IStudentRepository studentRepository)
+    {
+        _studentRepository = studentRepository;
+    }
+
+    public async Task<RegisterStudentResponse> Handle(RegisterStudentCommand request, CancellationToken cancellationToken)
+    {
+        var student = new Student
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            DateOfBirth = request.DateOfBirth,
+            Email = request.Email,
+            RegistrationDate = DateTime.UtcNow
+        };
+
+        await _studentRepository.AddStudentAsync(student);
+        
+        return new RegisterStudentResponse { StudentId = student.Id };
+    }
+}
+```
+
+#### Response (RegisterStudentResponse.cs)
+
+The response returned after successful registration.
+
+```csharp
+public class RegisterStudentResponse
+{
+    public int StudentId { get; set; }
+}
+```
+
+#### Validator (RegisterStudentValidator.cs)
+
+Validation logic for incoming requests.
+
+```csharp
+public class RegisterStudentValidator : AbstractValidator<RegisterStudentCommand>
+{
+    public RegisterStudentValidator()
+    {
+        RuleFor(x => x.FirstName).NotEmpty().WithMessage("First name is required.");
+        RuleFor(x => x.Email).EmailAddress().WithMessage("A valid email is required.");
+        // Additional validation rules
+    }
+}
+```
+
+#### Student Entity (Student.cs)
+
+The domain model representing a student.
+
+```csharp
+public class Student
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTime DateOfBirth { get; set; }
+    public string Email { get; set; }
+    public DateTime RegistrationDate { get; set; }
+}
+```
+
+#### Repository (StudentRepository.cs)
+
+Repository handling data access logic.
+
+```csharp
+public interface IStudentRepository
+{
+    Task AddStudentAsync(Student student);
+    Task<Student> GetStudentByIdAsync(int studentId);
+}
+
+public class StudentRepository : IStudentRepository
+{
+    private readonly StudentDbContext _context;
+
+    public StudentRepository(StudentDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task AddStudentAsync(Student student)
+    {
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<Student> GetStudentByIdAsync(int studentId)
+    {
+        return await _context.Students.FindAsync(studentId);
+    }
+}
+```
+
+#### Controller (StudentsController.cs)
+
+The API endpoint that handles HTTP requests for student registration.
+
+```csharp
+[ApiController]
+[Route("api/students")]
+public class StudentsController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public StudentsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterStudent([FromBody] RegisterStudentCommand command)
+    {
+        var response = await _mediator.Send(command);
+        return Ok(response);
+    }
+}
+```
+
+---
+
+### 4. Other Services in the System
+
+You would repeat the same kind of vertical slice architecture for other services like:
+- Teacher Service (manages teacher assignments, profiles, etc.).
+- Classroom Service (handles class schedules and assignments).
+- Attendance Service (manages attendance tracking for students and teachers).
+
+Each microservice would have its own independent vertical slices, encapsulating the business logic, persistence, and API endpoints for its specific domain.
+
+---
+
+### 5. Advantages of Vertical Slice Architecture in School Management
+
+- Feature Isolation: Each slice is responsible for a single feature, making it easy to modify, test, and deploy independently.
+- Scalability: Adding new features (such as a new type of class or new grade format) is straightforward since each feature is encapsulated in its own slice.
+- Clear Separation of Concerns: Business logic is contained within each slice, and unnecessary cross-feature dependencies are minimized.
+- Better Team Collaboration: Different teams can work on different vertical slices without interfering with each other.
+- Testability: Since each slice contains all the logic for a feature, it is easier to write and execute tests for specific business scenarios.
+
+---
+
+### 6. Technologies & Tools
+
+For implementing a School Management System with Vertical Slice Architecture in .NET Core, you can use:
+- ASP.NET Core: For building the microservices.
+- MediatR: For handling commands, queries, and business logic within slices.
+- Entity Framework Core: For database access.
+- FluentValidation: For validating incoming requests.
+- Docker: To containerize each microservice for independent deployment.
+- RabbitMQ or Kafka: For messaging and event-driven communication between services.
+- Swagger/OpenAPI: For API documentation and testing.
+
+---
+
+By applying Vertical Slice Architecture to a School Management System, you can build a highly maintainable, scalable, and modular application that is easy to extend as new business requirements arise.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+In inventory management, Initial Stock Level, Reorder Level, and Stock Level represent different stages or conditions of stock in a warehouse or store. Here’s how they differ:
+
+### 1. Initial Stock Level:
+   - This refers to the quantity of a particular item that is available at the beginning of a specific time period (e.g., at the start of the business day, week, or when the product is first stocked).
+   - Example: If you start a new product line with 100 units, your initial stock level is 100 units.
+
+### 2. Reorder Level:
+   - This is a predefined stock quantity at which a reorder should be triggered to replenish the inventory before it runs too low.
+   - It is calculated to avoid stockouts (running out of inventory) by considering lead times for suppliers and the average consumption rate.
+   - Formula: 
+     \[
+     \text{Reorder Level} = \text{Lead Time Demand} + \text{Safety Stock}
+     \]
+     where:
+     - Lead Time Demand is the quantity used during the time it takes to receive new stock after placing an order.
+     - Safety Stock is an additional buffer to cover unexpected delays or increased demand.
+   - Example: If it takes 5 days to receive new stock and you use 10 units per day, the reorder level would be \(5 \times 10 = 50\) units.
+
+### 3. Stock Level:
+   - This represents the current quantity of a specific item available in inventory at any given time.
+   - Stock levels fluctuate as items are sold, returned, or replenished.
+   - Example: If you started with 100 units and sold 40 units, your current stock level would be 60 units.
+
+### Calculations and Relationships:
+   - Initial Stock Level is the starting point, and as sales or usage occurs, the Stock Level decreases.
+   - When the Stock Level reaches the Reorder Level, it's a signal to place an order to replenish the inventory.
+   - After placing the order, and once the new stock arrives, the Stock Level will increase based on the quantity received.
+
+### Example Flow:
+1. Initial Stock Level: 100 units.
+2. Current Stock Level decreases due to sales:
+   - After selling 60 units, Current Stock Level = 40 units.
+3. Reorder Level might be set at 30 units, so when the Current Stock Level reaches 30, a reorder is placed.
+4. New stock arrives, increasing the Stock Level.
+
+Thus, these levels help in maintaining an efficient inventory system and preventing stockouts while minimizing excess stock.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+In a microservice architecture using the vertical slice architecture, your current design introduces a natural question about how to structure the services and data model between the Product and Store (or Company) entities.
+
+### 1. Adding `StoreId` to Product Table:
+   Including the `StoreId` in the `Product` entity directly ties each product to a specific store, which is fine for associating products with the store they belong to. This is especially useful when products are unique per store. The downside is that this can create a tight coupling between stores and products within the Product service.
+
+### 2. Should You Create a Store Table in the Product Service?
+   No, it is generally not recommended to create a `Store` table in the Product service. This can lead to data duplication and tight coupling between services, which goes against the principles of microservices.
+
+### Best Practices for Handling This Scenario:
+#### Option 1: Separate Store Service (Preferred)
+
+   - Store Service: Define the Store entity in a separate Store Service. This will allow you to handle store-specific logic, like store management, employee management, and other store-related activities.
+   
+   - Product Service: The Product Service can then reference the `StoreId`, but without needing to know the full details of the store. Any store-related data (such as the store name or location) can be fetched via an API call to the Store Service when needed.
+
+   - Benefits:
+     - Decoupling: Keeps services loosely coupled, which is essential in microservices.
+     - Separation of Concerns: Each service focuses on its own domain (Products in one, Stores in another).
+     - Flexibility: You can scale the services independently.
+
+#### Option 2: Store as an External Reference in Product Service
+
+   If your design is not ready to create a separate Store Service, you can still reference `StoreId` in your Product service and:
+   - Implement logic to interact with the Store information through a service contract (e.g., REST or gRPC) without embedding the store data directly in the product database.
+   - You can load the `StoreId` when fetching product details, and if the client needs the store's information, the Product Service can make a request to the Store Service (or a query to a store data source).
+
+### UI Interaction and Stock Management:
+You mentioned that on the UI, you want to load all products in the system and, when someone buys a product, determine which `StoreId` or `EmployeeId` the product belongs to. Here’s how you can handle it:
+
+#### 1. Loading Products for the UI:
+   - When loading products for the UI, query the Product Service to get a list of all products, along with their associated `StoreId`.
+   - If you need store details (like store name), the Product Service can make a request to the Store Service or the UI can directly call the Store Service to enrich product data with the necessary store details.
+
+#### 2. Purchase Transaction and Stock Management:
+   - When a product is purchased, capture both the `StoreId` and `EmployeeId`.
+   - Use this information to determine the stock level per store. You can perform the stock management calculation (deduction from stock) in the Product Service.
+   - Each product can have its own `StockLevel` tracked separately for each store (which might be based on the `StoreId`), ensuring that stock for a product in one store does not affect another store.
+
+### Example:
+
+- Product Service:
+   ```csharp
+   public class Product
+   {
+       public Guid Id { get; set; } = Guid.NewGuid();
+       public string ProductCode { get; set; }
+       public string Barcode { get; set; }
+       public string ProductName { get; set; } = default!;
+       public List<string> Category { get; set; } = default!;
+       public string ProductDescription { get; set; } = default!;
+       public string ProductImage { get; set; } = default!;
+       public string Status { get; set; } //Active or Inactive
+       public double InitialStock { get; set; } 
+       public double ReorderLevel { get; set; }
+       public double StockLevel { get; set; } 
+       public decimal CostPrice { get; set; }
+       public decimal SellingPrice { get; set; }
+       public string CreateBy { get; set; }
+       public DateTime CreateDate { get; set; } = DateTime.Now;
+       public Guid StoreId { get; set; } // Reference to StoreId from Store Service
+   }
+   ```
+
+- Store Service:
+   ```csharp
+   public class Store
+   {
+       public Guid Id { get; set; } = Guid.NewGuid();
+       public string StoreName { get; set; }
+       public string Location { get; set; }
+       public string ContactNumber { get; set; }
+       public string Status { get; set; } // Active, Inactive
+       public string Owner { get; set; }
+   }
+   ```
+
+### Interaction between Services:
+1. Product Service:
+   - Responsible for managing product details and stock.
+   - When a product's `StoreId` is needed, it calls the Store Service via an API request or message broker (e.g., RabbitMQ) to fetch store-related data.
+
+2. Store Service:
+   - Manages the store details and exposes APIs for fetching store-related information.
+   - Handles store-specific operations like employee management, location updates, etc.
+
+### API Communication:
+   - REST API or gRPC: When loading a product, the Product Service can send an API request to the Store Service to get store details.
+   - Message Broker: If you're using event-driven communication, you can have a message broker (e.g., RabbitMQ, Kafka) to publish events between services (e.g., product created, product updated).
+
+### Stock Management Calculation:
+   - Stock updates are handled within the Product Service. For example, when an item is sold, the Product Service updates the `StockLevel` based on the `StoreId` and recalculates whether a reorder is necessary based on the current stock and `ReorderLevel`.
+
+### Summary:
+- StoreId in Product: It's fine to reference `StoreId` in the product, but avoid duplicating store details in the Product Service.
+- Store Service: Use a separate Store Service to manage store-related operations and provide store details to the Product Service as needed.
+- Microservice Communication: Use API requests (REST, gRPC) or event-driven communication to allow the Product Service and Store Service to interact while maintaining service boundaries.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Event-driven communication is a design pattern where services, components, or applications communicate with each other by producing and consuming events. In a microservices architecture, event-driven communication is particularly useful for achieving loose coupling between services, ensuring that each service can react to changes in other services without being tightly integrated with them.
+
+### Key Concepts in Event-Driven Communication
+
+1. Event:
+   - An event represents a significant change or action in a system. It is a fact that something has happened.
+   - Example: "OrderPlaced", "ProductStockUpdated", "UserRegistered", etc.
+   - Events are typically immutable and carry all necessary information about the change.
+
+2. Event Producer:
+   - A service or component that publishes or emits an event when something important happens.
+   - Example: The Product Service might emit a "ProductStockUpdated" event when the stock of a product changes.
+
+3. Event Consumer:
+   - A service or component that listens for events and takes appropriate actions when it receives an event.
+   - Example: The Notification Service might consume the "OrderPlaced" event to send a confirmation email to the customer.
+
+4. Event Broker/Message Broker:
+   - A messaging infrastructure (e.g., RabbitMQ, Kafka, Azure Service Bus) that facilitates the publishing, distributing, and consuming of events between producers and consumers.
+   - The broker helps decouple services by handling the delivery of events and allows for reliable, asynchronous communication.
+
+5. Asynchronous Communication:
+   - In an event-driven system, services do not need to wait for a response after publishing an event. They continue with their own operations while the consumers handle the event.
+   - This provides better scalability and responsiveness compared to synchronous communication like REST APIs.
+
+### Event-Driven Architecture Patterns
+
+1. Event Notification:
+   - Services publish events to inform other services that something has happened. The consumers of the event can choose to react to it.
+   - Example: When a product's stock level is updated, the Product Service publishes a "ProductStockUpdated" event. The Store Service and Inventory Management Service may consume this event and update their own systems.
+
+2. Event-Carried State Transfer:
+   - In this pattern, the event contains the state that the consumer requires. The event is not just a notification, but it includes all the information needed to process the event.
+   - Example: An "OrderPlaced" event might carry details about the order, the products ordered, the customer details, and the total amount, allowing the Order Processing Service to process the order without needing to fetch more data from the original source.
+
+3. Event Sourcing:
+   - Instead of storing the current state of an entity (like product stock), the system stores a series of events that have occurred to modify the state. The current state is then derived by replaying all the events.
+   - Example: Every time a product's stock is updated, an event is emitted ("StockIncreased", "StockDecreased"). The current stock level can be reconstructed by replaying all these events.
+
+4. CQRS (Command Query Responsibility Segregation):
+   - This pattern often works with event sourcing, where commands (operations that change data) are separated from queries (operations that read data). The command side emits events, and the query side reacts to these events to update its view of the data.
+   - Example: The Product Service emits events for changes in product stock, and the Reporting Service listens for these events to update a view of the stock levels for reporting purposes.
+
+### Example Scenario of Event-Driven Communication
+
+Let's consider the Product Service and Store Service in your scenario using event-driven communication for stock management:
+
+#### 1. Event: ProductStockUpdated:
+   - When the stock level of a product is updated (e.g., after a sale or restock), the Product Service emits a `ProductStockUpdated` event.
+   - This event might carry details like:
+     ```json
+     {
+       "ProductId": "abc123",
+       "StoreId": "store567",
+       "PreviousStockLevel": 100,
+       "NewStockLevel": 90,
+       "UpdatedAt": "2024-09-17T10:30:00Z"
+     }
+     ```
+
+#### 2. Message Broker:
+   - The Product Service publishes the `ProductStockUpdated` event to a message broker, such as RabbitMQ or Kafka.
+
+#### 3. Event Consumers:
+   - Multiple services can consume this event asynchronously:
+     - Store Service: Updates the stock level of the product for the respective store.
+     - Inventory Management Service: Adjusts the inventory count and triggers reordering if the new stock level is below the reorder level.
+     - Notification Service: Sends a low stock alert to the store manager if the stock falls below a certain threshold.
+
+Each consumer reacts to the event without knowing the internal details of how the Product Service operates, promoting loose coupling between services.
+
+### Event Flow Example
+
+1. Product Service publishes a `ProductStockUpdated` event when the stock is updated.
+2. The Message Broker (e.g., RabbitMQ) receives the event and pushes it to any subscribed services (consumers).
+3. The Store Service and Inventory Management Service consume the event, updating their respective systems based on the event's data.
+4. Other services (like the Notification Service) can also consume the event and trigger specific actions (e.g., sending notifications).
+
+### Benefits of Event-Driven Communication
+
+1. Loose Coupling:
+   - Producers and consumers do not need to be aware of each other. The event broker handles communication, and services can evolve independently.
+   
+2. Scalability:
+   - Since events are processed asynchronously, services do not need to wait for responses, making the system more scalable.
+   
+3. Resilience:
+   - The system can handle temporary failures more gracefully. For example, if a consumer is down, the message broker can keep the event and deliver it when the consumer is back online.
+
+4. Flexibility:
+   - New services can be added as consumers of existing events without modifying the event producer. This allows for easier feature expansion.
+
+### Event-Driven Communication in Your Scenario
+
+For your Product Service that tracks stock levels and associates products with stores, an event-driven approach can handle stock updates across multiple services:
+
+- Product Stock Updates: When stock changes, the Product Service emits a `ProductStockUpdated` event.
+- Store or Inventory Updates: The Store Service and Inventory Management Service can consume this event to update stock details for specific stores.
+- Order Service: When an order is placed, an `OrderPlaced` event can be published, allowing the Inventory Service to reduce stock accordingly and the Product Service to issue a stock update event.
+
+This way, you decouple the services and ensure that stock management, product updates, and order handling all happen seamlessly without tightly integrating the services.
+
+### Tools for Event-Driven Architecture
+- RabbitMQ: A message broker supporting message queues and pub/sub for asynchronous event delivery.
+- Apache Kafka: A distributed event streaming platform suitable for large-scale event handling and processing.
+- Azure Service Bus: A cloud-based messaging service used for connecting services and applications.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+To integrate event-driven communication between the Product Service and the Store Service, you can use different messaging systems such as RabbitMQ, Kafka, gRPC, or Azure Service Bus. Below are examples of how to make calls between the Product Service and the Store Service using these technologies.
+
+### 1. RabbitMQ Example
+RabbitMQ is often used in a publish-subscribe (pub/sub) model. Here's how the Product Service can call the Store Service using RabbitMQ.
+
+#### Product Service (Producer)
+```csharp
+public class ProductService
+{
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+
+    public ProductService()
+    {
+        var factory = new ConnectionFactory() { HostName = "localhost" };
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
+        _channel.QueueDeclare(queue: "store_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+    }
+
+    public void RequestStoreInfo(Guid storeId)
+    {
+        var message = JsonConvert.SerializeObject(new { StoreId = storeId });
+        var body = Encoding.UTF8.GetBytes(message);
+
+        _channel.BasicPublish(exchange: "", routingKey: "store_queue", basicProperties: null, body: body);
+    }
+}
+```
+
+#### Store Service (Consumer)
+```csharp
+public class StoreService
+{
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+
+    public StoreService()
+    {
+        var factory = new ConnectionFactory() { HostName = "localhost" };
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
+        _channel.QueueDeclare(queue: "store_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+    }
+
+    public void StartListening()
+    {
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            var storeRequest = JsonConvert.DeserializeObject<StoreRequest>(message);
+            var storeData = FetchStoreData(storeRequest.StoreId);
+            Console.WriteLine($"Store data for {storeRequest.StoreId}: {storeData.Name}");
+        };
+
+        _channel.BasicConsume(queue: "store_queue", autoAck: true, consumer: consumer);
+    }
+
+    private Store FetchStoreData(Guid storeId)
+    {
+        // Fetch store data from database
+        return new Store { StoreId = storeId, Name = "My Store" };
+    }
+}
+```
+
+### 2. Kafka Example
+In Kafka, communication happens via topics, where services publish messages to topics, and others subscribe to those topics.
+
+#### Product Service (Producer)
+```csharp
+using Confluent.Kafka;
+using System;
+
+public class ProductService
+{
+    private readonly string _topic = "store_requests";
+    
+    public async Task RequestStoreInfo(Guid storeId)
+    {
+        var config = new ProducerConfig { BootstrapServers = "localhost:9092" };
+
+        using (var producer = new ProducerBuilder<Null, string>(config).Build())
+        {
+            var message = new { StoreId = storeId };
+            await producer.ProduceAsync(_topic, new Message<Null, string> { Value = JsonConvert.SerializeObject(message) });
+            Console.WriteLine($"Requested store info for StoreId: {storeId}");
+        }
+    }
+}
+```
+
+#### Store Service (Consumer)
+```csharp
+using Confluent.Kafka;
+using System;
+
+public class StoreService
+{
+    private readonly string _topic = "store_requests";
+
+    public void StartListening()
+    {
+        var config = new ConsumerConfig
+        {
+            GroupId = "store_service_group",
+            BootstrapServers = "localhost:9092",
+            AutoOffsetReset = AutoOffsetReset.Earliest
+        };
+
+        using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
+        {
+            consumer.Subscribe(_topic);
+
+            while (true)
+            {
+                var consumeResult = consumer.Consume();
+                var storeRequest = JsonConvert.DeserializeObject<StoreRequest>(consumeResult.Message.Value);
+                var storeData = FetchStoreData(storeRequest.StoreId);
+                Console.WriteLine($"Store data for {storeRequest.StoreId}: {storeData.Name}");
+            }
+        }
+    }
+
+    private Store FetchStoreData(Guid storeId)
+    {
+        // Fetch store data from the database
+        return new Store { StoreId = storeId, Name = "Store from Kafka" };
+    }
+}
+```
+
+### 3. gRPC Example
+gRPC is a high-performance, open-source RPC (Remote Procedure Call) framework that can be used for synchronous communication between services.
+
+#### gRPC Service Definition (`store.proto`)
+```proto
+syntax = "proto3";
+
+service StoreService {
+  rpc GetStore (StoreRequest) returns (StoreResponse);
+}
+
+message StoreRequest {
+  string store_id = 1;
+}
+
+message StoreResponse {
+  string store_name = 1;
+}
+```
+
+#### Store Service Implementation
+```csharp
+public class StoreService : StoreService.StoreServiceBase
+{
+    public override Task<StoreResponse> GetStore(StoreRequest request, ServerCallContext context)
+    {
+        var storeId = Guid.Parse(request.StoreId);
+        var store = FetchStoreData(storeId);
+        return Task.FromResult(new StoreResponse { StoreName = store.Name });
+    }
+
+    private Store FetchStoreData(Guid storeId)
+    {
+        // Fetch store data from database
+        return new Store { StoreId = storeId, Name = "My gRPC Store" };
+    }
+}
+```
+
+#### Product Service (gRPC Client)
+```csharp
+public class ProductService
+{
+    private readonly StoreService.StoreServiceClient _client;
+
+    public ProductService(StoreService.StoreServiceClient client)
+    {
+        _client = client;
+    }
+
+    public async Task GetStoreInfo(Guid storeId)
+    {
+        var request = new StoreRequest { StoreId = storeId.ToString() };
+        var response = await _client.GetStoreAsync(request);
+        Console.WriteLine($"Store name: {response.StoreName}");
+    }
+}
+```
+
+### 4. Azure Service Bus Example
+Azure Service Bus provides a fully managed message queueing service in the cloud for structured and unstructured data.
+
+#### Product Service (Send Message)
+```csharp
+public class ProductService
+{
+    private static string connectionString = "<Azure Service Bus Connection String>";
+    private static string queueName = "store-requests";
+    private static IQueueClient queueClient;
+
+    public ProductService()
+    {
+        queueClient = new QueueClient(connectionString, queueName);
+    }
+
+    public async Task RequestStoreInfo(Guid storeId)
+    {
+        var messageBody = JsonConvert.SerializeObject(new { StoreId = storeId });
+        var message = new Message(Encoding.UTF8.GetBytes(messageBody));
+        await queueClient.SendAsync(message);
+        Console.WriteLine($"Sent store request for StoreId: {storeId}");
+    }
+}
+```
+
+#### Store Service (Receive Message)
+```csharp
+public class StoreService
+{
+    private static string connectionString = "<Azure Service Bus Connection String>";
+    private static string queueName = "store-requests";
+    private static IQueueClient queueClient;
+
+    public StoreService()
+    {
+        queueClient = new QueueClient(connectionString, queueName);
+    }
+
+    public void StartListening()
+    {
+        var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
+        {
+            MaxConcurrentCalls = 1,
+            AutoComplete = false
+        };
+
+        queueClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
+    }
+
+    private async Task ProcessMessagesAsync(Message message, CancellationToken token)
+    {
+        var messageBody = Encoding.UTF8.GetString(message.Body);
+        var storeRequest = JsonConvert.DeserializeObject<StoreRequest>(messageBody);
+        var storeData = FetchStoreData(storeRequest.StoreId);
+        Console.WriteLine($"Store data for {storeRequest.StoreId}: {storeData.Name}");
+
+        await queueClient.CompleteAsync(message.SystemProperties.LockToken);
+    }
+
+    private Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+    {
+        Console.WriteLine($"Message handler encountered an exception {exceptionReceivedEventArgs.Exception}.");
+        return Task.CompletedTask;
+    }
+
+    private Store FetchStoreData(Guid storeId)
+    {
+        // Fetch store data from database
+        return new Store { StoreId = storeId, Name = "Store from Azure Service Bus" };
+    }
+}
+```
+
+### Summary of Approaches
+
+- RabbitMQ: Publish and consume messages using a message broker with queues.
+- Kafka: Event streaming platform for high throughput with a pub/sub model.
+- gRPC: High-performance synchronous RPC calls for service-to-service communication.
+- Azure Service Bus: Fully managed message broker service in the cloud, ideal for scalable messaging.
+
+Each of these approaches has its strengths and use cases, so the choice depends on your system requirements such as scalability, latency, and coupling.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Mapster is a high-performance object-to-object mapping library for .NET that simplifies mapping between objects. It’s an alternative to libraries like AutoMapper but is generally known for its better performance and flexibility. Mapster can be used in .NET Core applications, including microservices, for tasks like DTO mapping, view model conversions, and other object mapping needs.
+
+### Key Features of Mapster
+- High Performance: Faster than many other object mappers due to its lightweight nature.
+- Strongly Typed: Supports compile-time mapping generation.
+- Flexible Configuration: Allows fluent API to configure mappings.
+- Projection Support: Can project between different types (useful for LINQ queries).
+- No Proxy Classes: Unlike AutoMapper, Mapster doesn't generate proxy classes, making it faster and easier to debug.
+
+### How to Use Mapster in .NET Core
+
+1. Install Mapster NuGet Package
+
+   You can install Mapster via NuGet:
+
+   ```bash
+   dotnet add package Mapster
+   ```
+
+   Additionally, you may want to install `Mapster.Extensions.Microsoft.DependencyInjection` for integration with .NET Core's Dependency Injection system:
+
+   ```bash
+   dotnet add package Mapster.Extensions.Microsoft.DependencyInjection
+   ```
+
+2. Basic Mapping
+
+   Suppose you have a `Product` entity and a `ProductDto` that you want to map between.
+
+   ```csharp
+   public class Product
+   {
+       public Guid Id { get; set; }
+       public string ProductName { get; set; }
+       public decimal Price { get; set; }
+   }
+
+   public class ProductDto
+   {
+       public string ProductName { get; set; }
+       public decimal Price { get; set; }
+   }
+   ```
+
+   You can easily map `Product` to `ProductDto` using Mapster:
+
+   ```csharp
+   using Mapster;
+
+   var product = new Product { Id = Guid.NewGuid(), ProductName = "Laptop", Price = 1000 };
+
+   // Map Product to ProductDto
+   var productDto = product.Adapt<ProductDto>();
+
+   Console.WriteLine($"Name: {productDto.ProductName}, Price: {productDto.Price}");
+   ```
+
+   The `Adapt` method is the core of Mapster. It automatically maps properties with matching names and types between objects.
+
+3. Configuring Mappings
+
+   You can configure mappings globally or for specific use cases using a fluent API.
+
+   ```csharp
+   TypeAdapterConfig<Product, ProductDto>.NewConfig()
+       .Map(dest => dest.ProductName, src => src.ProductName.ToUpper());
+   ```
+
+   Here, the `ProductName` in `ProductDto` will be set to the uppercase version of `Product.ProductName`.
+
+4. Mapping Collections
+
+   Mapster can map collections, making it ideal for mapping lists of entities to lists of DTOs.
+
+   ```csharp
+   List<Product> products = new List<Product>
+   {
+       new Product { Id = Guid.NewGuid(), ProductName = "Laptop", Price = 1000 },
+       new Product { Id = Guid.NewGuid(), ProductName = "Phone", Price = 500 }
+   };
+
+   var productDtos = products.Adapt<List<ProductDto>>();
+   ```
+
+5. Projection (LINQ Integration)
+
+   Mapster can project objects during LINQ queries to efficiently map entities from the database to DTOs:
+
+   ```csharp
+   var productDtos = dbContext.Products
+       .ProjectToType<ProductDto>()
+       .ToList();
+   ```
+
+   `ProjectToType` allows you to avoid loading the full entity into memory before mapping to a DTO, which improves performance.
+
+6. Dependency Injection Integration
+
+   If you want to use Mapster with .NET Core Dependency Injection (DI), you can set it up in the `Program.cs` or `Startup.cs`.
+
+   First, install `Mapster.Extensions.Microsoft.DependencyInjection`:
+
+   ```bash
+   dotnet add package Mapster.Extensions.Microsoft.DependencyInjection
+   ```
+
+   Then configure Mapster in the DI container:
+
+   ```csharp
+   public void ConfigureServices(IServiceCollection services)
+   {
+       // Register Mapster
+       services.AddMapster();
+
+       // Other service registrations
+   }
+   ```
+
+   In this setup, you can inject `IMapper` from Mapster into your services or controllers.
+
+7. Using DTOs in a Controller
+
+   Suppose you are building an API in a microservice that returns a `ProductDto` instead of exposing your domain entity (`Product`) directly.
+
+   ```csharp
+   [ApiController]
+   [Route("api/products")]
+   public class ProductController : ControllerBase
+   {
+       private readonly IProductService _productService;
+
+       public ProductController(IProductService productService)
+       {
+           _productService = productService;
+       }
+
+       [HttpGet("{id}")]
+       public ActionResult<ProductDto> GetProduct(Guid id)
+       {
+           var product = _productService.GetProduct(id);
+
+           if (product == null)
+           {
+               return NotFound();
+           }
+
+           // Use Mapster to map Product to ProductDto
+           var productDto = product.Adapt<ProductDto>();
+
+           return Ok(productDto);
+       }
+   }
+   ```
+
+### Advanced Mapster Features
+
+1. Flattening Objects
+   Mapster can flatten nested objects into a simpler structure.
+
+   ```csharp
+   public class Order
+   {
+       public Customer Customer { get; set; }
+       public decimal Total { get; set; }
+   }
+
+   public class OrderDto
+   {
+       public string CustomerName { get; set; }
+       public decimal Total { get; set; }
+   }
+
+   TypeAdapterConfig<Order, OrderDto>.NewConfig()
+       .Map(dest => dest.CustomerName, src => src.Customer.Name);
+   ```
+
+   This flattens the `Order.Customer.Name` property into `OrderDto.CustomerName`.
+
+2. Mapping to a Pre-Existing Object
+   You can map properties from one object to an existing object (rather than creating a new instance):
+
+   ```csharp
+   var existingProductDto = new ProductDto();
+   product.Adapt(existingProductDto);
+   ```
+
+3. Custom Mappings
+   You can customize how Mapster maps fields and properties. For example, if you need custom mapping logic for specific properties:
+
+   ```csharp
+   TypeAdapterConfig<Product, ProductDto>.NewConfig()
+       .Map(dest => dest.ProductName, src => src.ProductName.ToUpper());
+   ```
+
+4. Map Inheritance
+   Mapster supports mapping inherited classes and types:
+
+   ```csharp
+   public class BaseProduct
+   {
+       public string Name { get; set; }
+   }
+
+   public class DetailedProduct : BaseProduct
+   {
+       public decimal Price { get; set; }
+   }
+
+   public class ProductDto
+   {
+       public string Name { get; set; }
+       public decimal Price { get; set; }
+   }
+
+   var product = new DetailedProduct { Name = "Laptop", Price = 1200 };
+   var productDto = product.Adapt<ProductDto>();
+   ```
+
+### When to Use Mapster?
+
+- High Performance Needs: If performance is a key concern, Mapster is faster than many other mapping libraries like AutoMapper.
+- Microservices: In microservices architecture, you often need to map entities to DTOs, and Mapster is perfect for efficient and easy mapping.
+- Flexible Mapping: Mapster offers more flexibility and customization options than some other libraries.
+
+### Conclusion
+
+Mapster is a great choice for mapping in .NET Core, particularly in microservices where performance and simplicity matter. Its flexibility, ease of use, and strong performance make it a solid choice for object-to-object mapping. Whether you're mapping between DTOs and domain objects or between different data models, Mapster can handle it efficiently.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+docker ps
+docker-compose up
+docker exec -it my_container bash
+psql -U somad (the username to connect to the POSTGRESQL database)
+psql -U somad -d shoppingproductdb
+\l
+\c shoppingproductdb
+\d
+
+
