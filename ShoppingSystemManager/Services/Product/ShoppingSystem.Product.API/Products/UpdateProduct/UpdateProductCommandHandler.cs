@@ -1,4 +1,5 @@
-﻿using Marten;
+﻿using FluentValidation;
+using Marten;
 using ShoppingSystem.BuildingBlocks.CQRS;
 using ShoppingSystem.Product.API.Exceptions;
 
@@ -42,4 +43,18 @@ namespace ShoppingSystem.Product.API.Products.UpdateProduct
         double StockLevel, decimal CostPrice, decimal SellingPrice, string UpdateBy, Guid StoreId) : ICommand<UpdateProductResult>;
 
     public record UpdateProductResult(bool IsSuccess);
+
+    public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+    {
+        public UpdateProductCommandValidator()
+        {
+            RuleFor(command => command.Id).NotEmpty().WithMessage("Product Id is required!");
+
+            RuleFor(command => command.ProductName).NotEmpty()
+                .WithMessage("Product name is required!")
+                .Length(2, 150).WithMessage("Product Name must be between 2 and 150 characters!");
+
+            RuleFor(command => command.SellingPrice).GreaterThan(0).WithMessage("Selling Price must be greater than 0");
+        }
+    }
 }
