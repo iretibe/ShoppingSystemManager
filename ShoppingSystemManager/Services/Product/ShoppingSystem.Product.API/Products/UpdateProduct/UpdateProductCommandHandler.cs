@@ -5,17 +5,15 @@ using ShoppingSystem.Product.API.Exceptions;
 
 namespace ShoppingSystem.Product.API.Products.UpdateProduct
 {
-    internal class UpdateProductCommandHandler(IDocumentSession session, ILogger<UpdateProductCommandHandler> logger) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
+    internal class UpdateProductCommandHandler(IDocumentSession session) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
     {
         public async Task<UpdateProductResult> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            logger.LogInformation(nameof(UpdateProductCommandHandler));
-
             var entity = await session.LoadAsync<Models.Product>(request.Id, cancellationToken);
 
             if (entity is null)
             {
-                throw new ProductNotFoundException();
+                throw new ProductNotFoundException(request.Id);
             }
 
             entity.Id = request.Id;

@@ -24,7 +24,7 @@ namespace ShoppingSystem.Product.API.Products.CreateProduct
 
     //internal class CreateProductCommandHandler(IDocumentSession session, IValidator<CreateProductCommand> validator) 
     //    : ICommandHandler<CreateProductCommand, CreateProductResult>
-    internal class CreateProductCommandHandler(IDocumentSession session, ILogger<CreateProductCommandHandler> logger) : ICommandHandler<CreateProductCommand, CreateProductResult>
+    internal class CreateProductCommandHandler(IDocumentSession session) : ICommandHandler<CreateProductCommand, CreateProductResult>
     {
         public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
@@ -34,8 +34,6 @@ namespace ShoppingSystem.Product.API.Products.CreateProduct
             //{
             //    throw new ValidationException(errors.FirstOrDefault());
             //}
-
-            logger.LogInformation("CreateProductCommandHandler.Handle called with @command");
 
             var entity = new Models.Product
             {

@@ -8,9 +8,11 @@ namespace ShoppingSystem.Product.API.Products.GetAllProducts
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/products", async (ISender sender) =>
+            app.MapGet("/products", async ([AsParameters] GetProductRequest request, ISender sender) =>
             {
-                var result = await sender.Send(new GetAllProductsQuery());
+                var query = request.Adapt<GetAllProductsQuery>();
+
+                var result = await sender.Send(query);
 
                 var response = result.Adapt<GetAllProductsResponse>();
 
@@ -25,4 +27,6 @@ namespace ShoppingSystem.Product.API.Products.GetAllProducts
     }
 
     public record GetAllProductsResponse(IEnumerable<Models.Product> Products);
+
+    public record GetProductRequest(int? PageNumber = 1, int? PageSize = 10);
 }
