@@ -10,7 +10,22 @@ services:
       - 5432:5432
     volumes:
       - postgres_product:/var/lib/postgresql/data/
+
+
+  shoppingbasketdb:
+    container_name: shoppingbasketdb
+    environment:
+      - POSTGRES_USER=somad
+      - POSTGRES_PASSWORD=Postgres@2024!
+      - POSTGRES_DB=shoppingbasketdb
+    restart: always
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_basket:/var/lib/postgresql/data/
       
+
+
   shoppingsystem.product.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

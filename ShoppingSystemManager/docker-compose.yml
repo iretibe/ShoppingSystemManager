@@ -2,6 +2,9 @@ services:
   shoppingproductdb:
     image: postgres
 
+  shoppingbasketdb:
+    image: postgres
+
   shoppingsystem.product.api:
     image: ${DOCKER_REGISTRY-}shoppingsystemproductapi
     build:
@@ -10,4 +13,5 @@ services:
 
 volumes:
   postgres_product:
+  postgres_basket:
 
