@@ -25,6 +25,11 @@ services:
       - postgres_basket:/var/lib/postgresql/data/
       
 
+  distributedcache:
+    container_name: distributedcache
+    restart: always
+    ports:
+      - "6379:6379"
 
   shoppingsystem.product.api:
     environment:
@@ -37,6 +42,23 @@ services:
     ports:
       - "6000:8080"
       - "6060:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  shoppingsystem.basket.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__PostGreSqlDatabase=Server=shoppingbasketdb;Port=5432;Database=shoppingbasketdb;UserId=somad;Password=Postgres@2024!;Include Error Detail=true
+      - ConnectionStrings__RedisConnection=distributedcache:6379
+    depends_on:
+      - shoppingbasketdb
+      - distributedcache
+    ports:
+      - "6001:8080"
+      - "6061:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

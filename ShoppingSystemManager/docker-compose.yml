@@ -5,13 +5,23 @@ services:
   shoppingbasketdb:
     image: postgres
 
+  distributedcache:
+    image: redis
+
   shoppingsystem.product.api:
     image: ${DOCKER_REGISTRY-}shoppingsystemproductapi
     build:
       context: .
       dockerfile: Services/Product/ShoppingSystem.Product.API/Dockerfile
 
+  shoppingsystem.basket.api:
+    image: ${DOCKER_REGISTRY-}shoppingsystembasketapi
+    build:
+      context: .
+      dockerfile: Services/Basket/ShoppingSystem.Basket.API/Dockerfile
+
 volumes:
   postgres_product:
   postgres_basket:
+
 
