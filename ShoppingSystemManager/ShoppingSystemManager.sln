@@ -28,6 +28,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Basket", "Basket", "{5B8AFA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingSystem.Basket.API", "Services\Basket\ShoppingSystem.Basket.API\ShoppingSystem.Basket.API.csproj", "{40100726-A01E-457A-B532-9AF230E89DD0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Discount", "Discount", "{1DC33BA4-364E-4331-90B3-738392AE501E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingSystem.Discount.Grpc", "Services\Discount\ShoppingSystem.Discount.Grpc\ShoppingSystem.Discount.Grpc.csproj", "{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +58,10 @@ Global
 		{40100726-A01E-457A-B532-9AF230E89DD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40100726-A01E-457A-B532-9AF230E89DD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40100726-A01E-457A-B532-9AF230E89DD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +74,8 @@ Global
 		{79C292AE-D1FC-40CC-B9ED-2D967E189209} = {84E70667-BB30-4A8B-B440-0838FF74DD99}
 		{5B8AFA0A-069D-417D-8CB0-C068BC495346} = {23B4F7D2-9B40-4C1D-A592-1C004DB07993}
 		{40100726-A01E-457A-B532-9AF230E89DD0} = {5B8AFA0A-069D-417D-8CB0-C068BC495346}
+		{1DC33BA4-364E-4331-90B3-738392AE501E} = {23B4F7D2-9B40-4C1D-A592-1C004DB07993}
+		{CBBBBE12-7CD3-4531-9BA2-8443B43E4CD8} = {1DC33BA4-364E-4331-90B3-738392AE501E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {280C120D-857B-4F71-8BB8-02BACFAF83C5}

@@ -5,7 +5,8 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "shoppingsystem.product.api": "StartDebugging",
-        "shoppingsystem.basket.api": "StartDebugging"
+        "shoppingsystem.basket.api": "StartDebugging",
+        "shoppingsystem.discount.grpc": "StartDebugging"
       }
     }
   }

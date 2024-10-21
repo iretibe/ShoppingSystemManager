@@ -2,7 +2,6 @@ using Carter;
 using HealthChecks.UI.Client;
 using Marten;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Caching.Distributed;
 using ShoppingSystem.Basket.API.Cache;
 using ShoppingSystem.Basket.API.Models;
 using ShoppingSystem.Basket.API.Repositories;
