@@ -2,6 +2,7 @@
 using ShoppingSystem.Basket.API.Models;
 using ShoppingSystem.Basket.API.Repositories;
 using ShoppingSystem.BuildingBlocks.CQRS;
+using ShoppingSystem.Discount.Grpc;
 
 namespace ShoppingSystem.Basket.API.Baskets.StoreBasket
 {
@@ -17,15 +18,31 @@ namespace ShoppingSystem.Basket.API.Baskets.StoreBasket
         }
     }
 
-    public class StoreBasketCommandHandler(IBasketRepository _repo) : ICommandHandler<StoreBasketCommand, StoreBasketResult>
+    public class StoreBasketCommandHandler(IBasketRepository _repo, DiscountProtoService.DiscountProtoServiceClient _serviceClient) : ICommandHandler<StoreBasketCommand, StoreBasketResult>
     {
         public async Task<StoreBasketResult> Handle(StoreBasketCommand request, CancellationToken cancellationToken)
         {
-            ShoppingCart cart = request.Cart;
+            await DeductDiscount(request.Cart, cancellationToken);
+
+            //ShoppingCart cart = request.Cart;
 
             await _repo.StoreBasketAsync(request.Cart, cancellationToken);
 
             return new StoreBasketResult(request.Cart.UserName);
+        }
+
+        private async Task DeductDiscount(ShoppingCart cart, CancellationToken cancellationToken)
+        {
+            //Communicate with discount GRPC and calculate latest prices of products into the basket
+            foreach (var item in cart.Items)
+            {
+                var coupon = await _serviceClient.GetDiscountAsync(new GetDiscountRequest
+                {
+                    ProductName = item.ProductName
+                });
+
+                item.Price -= coupon.Price;
+            }
         }
     }
 }

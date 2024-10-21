@@ -53,9 +53,11 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ConnectionStrings__PostGreSqlDatabase=Server=shoppingbasketdb;Port=5432;Database=shoppingbasketdb;UserId=somad;Password=Postgres@2024!;Include Error Detail=true
       - ConnectionStrings__RedisConnection=distributedcache:6379
+      - GrpcSettings__DiscountUrl=https://shoppingsystem.discount.grpc:8081 
     depends_on:
       - shoppingbasketdb
       - distributedcache
+      - shoppingsystem.discount.grpc
     ports:
       - "6001:8080"
       - "6061:8081"
