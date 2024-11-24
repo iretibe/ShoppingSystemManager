@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ShoppingSystem.Order.Infrastructure.Data;
+using ShoppingSystem.Order.Infrastructure.Data.Interceptors;
 
 namespace ShoppingSystem.Order.Infrastructure
 {
@@ -9,9 +13,18 @@ namespace ShoppingSystem.Order.Infrastructure
         {
             var connectionString = configuration.GetConnectionString("SqlDatabase");
 
-            //services.AddDbContext<ApplicationDbContext>(options =>  options.UseSqlServer(connectionString));
+            //Add services to the container
+            services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventInterceptor>();
 
-            //services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+            services.AddDbContext<ShoppingContext>((serviceProvider, options) =>
+            {
+                options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
+
+                options.UseSqlServer(connectionString);
+            });
+
+            //services.AddScoped<IApplicationDbContext, ShoppingContext>();
 
             return services;
         }

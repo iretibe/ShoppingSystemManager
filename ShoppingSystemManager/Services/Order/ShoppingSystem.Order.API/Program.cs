@@ -1,6 +1,7 @@
 using ShoppingSystem.Order.API;
 using ShoppingSystem.Order.Application;
 using ShoppingSystem.Order.Infrastructure;
+using ShoppingSystem.Order.Infrastructure.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,5 +15,11 @@ builder.Services
 var app = builder.Build();
 
 //Configure the HTTP request pipeline
+app.UseApiServices();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.InitializeDatabaseAsync();
+}
 
 app.Run();

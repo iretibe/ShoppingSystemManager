@@ -10,7 +10,7 @@ namespace ShoppingSystem.Order.Core.ValueObjects
 
         public static OrderId Of(Guid value)
         {
-            ArgumentNullException.ThrowIfNull(value, nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
             if (value == Guid.Empty)
             {

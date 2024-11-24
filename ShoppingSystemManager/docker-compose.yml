@@ -8,6 +8,9 @@ services:
   distributedcache:
     image: redis
 
+  shoppingorderdb:
+    image: mcr.microsoft.com/mssql/server
+
   shoppingsystem.product.api:
     image: ${DOCKER_REGISTRY-}shoppingsystemproductapi
     build:

@@ -3,7 +3,7 @@ using ShoppingSystem.Order.Core.ValueObjects;
 
 namespace ShoppingSystem.Order.Core.Models
 {
-    public class OrderItem : Entity<OrderItemId> 
+    public class OrderItem : Entity<OrderItemId>
     {
         public OrderItem(OrderId orderId, ProductId productId, int quantity, decimal price)
         {

@@ -31,6 +31,16 @@ services:
     ports:
       - "6379:6379"
 
+
+  shoppingorderdb:
+    container_name: shoppingorderdb
+    environment: 
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=SsM@2024
+    restart: always
+    ports:
+      - "1433:1433"
+
   shoppingsystem.product.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
