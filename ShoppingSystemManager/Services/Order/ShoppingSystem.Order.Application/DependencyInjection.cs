@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ShoppingSystem.BuildingBlocks.Behaviors;
 using System.Reflection;
 
 namespace ShoppingSystem.Order.Application
@@ -10,6 +11,8 @@ namespace ShoppingSystem.Order.Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                cfg .AddOpenBehavior(typeof(LoggingBehavior<,>));
             });
 
             return services;

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ShoppingSystem.Order.Application.Data;
 using ShoppingSystem.Order.Infrastructure.Data;
 using ShoppingSystem.Order.Infrastructure.Data.Interceptors;
 
@@ -24,7 +25,7 @@ namespace ShoppingSystem.Order.Infrastructure
                 options.UseSqlServer(connectionString);
             });
 
-            //services.AddScoped<IApplicationDbContext, ShoppingContext>();
+            services.AddScoped<IShoppingContext, ShoppingContext>();
 
             return services;
         }

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShoppingSystem.Order.Application.Data;
 using ShoppingSystem.Order.Core.Models;
 using System.Reflection;
 
 namespace ShoppingSystem.Order.Infrastructure.Data
 {
-    public class ShoppingContext : DbContext
+    public class ShoppingContext : DbContext, IShoppingContext
     {
         public ShoppingContext(DbContextOptions<ShoppingContext> options) : base(options)
         {
