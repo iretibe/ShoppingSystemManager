@@ -7,7 +7,8 @@
         "shoppingsystem.product.api": "StartDebugging",
         "shoppingsystem.basket.api": "StartDebugging",
         "shoppingsystem.discount.grpc": "StartDebugging",
-        "shoppingsystem.order.api": "StartDebugging"
+        "shoppingsystem.order.api": "StartDebugging",
+        "shoppingsystem.yarpapigateway": "StartDebugging"
       }
     }
   }

@@ -38,9 +38,16 @@ services:
       context: .
       dockerfile: Services/Order/ShoppingSystem.Order.API/Dockerfile
 
+  shoppingsystem.yarpapigateway:
+    image: ${DOCKER_REGISTRY-}shoppingsystemyarpapigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/ShoppingSystem.YarpApiGateway/Dockerfile
+
 volumes:
   postgres_product:
   postgres_basket:
+
 
 
 
