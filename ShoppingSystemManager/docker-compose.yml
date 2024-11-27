@@ -11,6 +11,9 @@ services:
   shoppingorderdb:
     image: mcr.microsoft.com/mssql/server
 
+  messagebroker:
+    image: rabbitmq:management
+
   shoppingsystem.product.api:
     image: ${DOCKER_REGISTRY-}shoppingsystemproductapi
     build:
@@ -29,9 +32,16 @@ services:
       context: .
       dockerfile: Services/Discount/ShoppingSystem.Discount.Grpc/Dockerfile
 
+  shoppingsystem.order.api:
+    image: ${DOCKER_REGISTRY-}shoppingsystemorderapi
+    build:
+      context: .
+      dockerfile: Services/Order/ShoppingSystem.Order.API/Dockerfile
+
 volumes:
   postgres_product:
   postgres_basket:
+
 
 
 

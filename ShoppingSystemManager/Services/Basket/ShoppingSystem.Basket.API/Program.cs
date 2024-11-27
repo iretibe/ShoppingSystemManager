@@ -7,6 +7,7 @@ using ShoppingSystem.Basket.API.Models;
 using ShoppingSystem.Basket.API.Repositories;
 using ShoppingSystem.BuildingBlocks.Behaviors;
 using ShoppingSystem.BuildingBlocks.Exceptions.Handler;
+using ShoppingSystem.BuildingBlocks.Messaging.MassTransit;
 using ShoppingSystem.Discount.Grpc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,9 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
 
     return handler;
 });
+
+//Asynchronous communication services
+builder.Services.AddMessageBroker(builder.Configuration);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 

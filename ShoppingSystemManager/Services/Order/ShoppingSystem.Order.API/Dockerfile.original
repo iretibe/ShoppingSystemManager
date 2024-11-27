@@ -13,11 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Order/ShoppingSystem.Order.API/ShoppingSystem.Order.API.csproj", "Services/Order/ShoppingSystem.Order.API/"]
-COPY ["Services/Order/ShoppingSystem.Order.Application/ShoppingSystem.Order.Application.csproj", "Services/Order/ShoppingSystem.Order.Application/"]
-COPY ["BuildingBlocks/ShoppingSystem.BuildingBlocks.Messaging/ShoppingSystem.BuildingBlocks.Messaging.csproj", "BuildingBlocks/ShoppingSystem.BuildingBlocks.Messaging/"]
-COPY ["BuildingBlocks/ShoppingSystem.BuildingBlocks/ShoppingSystem.BuildingBlocks.csproj", "BuildingBlocks/ShoppingSystem.BuildingBlocks/"]
-COPY ["Services/Order/ShoppingSystem.Order.Core/ShoppingSystem.Order.Core.csproj", "Services/Order/ShoppingSystem.Order.Core/"]
-COPY ["Services/Order/ShoppingSystem.Order.Infrastructure/ShoppingSystem.Order.Infrastructure.csproj", "Services/Order/ShoppingSystem.Order.Infrastructure/"]
 RUN dotnet restore "./Services/Order/ShoppingSystem.Order.API/ShoppingSystem.Order.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Order/ShoppingSystem.Order.API"

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using ShoppingSystem.Order.Core.Events;
 
-namespace ShoppingSystem.Order.Application.Orders.EventHandlers
+namespace ShoppingSystem.Order.Application.Orders.EventHandlers.DomainEvents
 {
     public class OrderUpdatedEventHandler(ILogger<OrderUpdatedEventHandler> _logger) : INotificationHandler<OrderUpdatedEvent>
     {

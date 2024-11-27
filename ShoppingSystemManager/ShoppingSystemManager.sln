@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingSystem.Order.Core",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingSystem.Order.Infrastructure", "Services\Order\ShoppingSystem.Order.Infrastructure\ShoppingSystem.Order.Infrastructure.csproj", "{A6231FDF-B139-4B3F-8A18-73337D52E08F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingSystem.BuildingBlocks.Messaging", "BuildingBlocks\ShoppingSystem.BuildingBlocks.Messaging\ShoppingSystem.BuildingBlocks.Messaging.csproj", "{96E9A9C4-D316-4304-B1B9-59BBB119348E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{A6231FDF-B139-4B3F-8A18-73337D52E08F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6231FDF-B139-4B3F-8A18-73337D52E08F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6231FDF-B139-4B3F-8A18-73337D52E08F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96E9A9C4-D316-4304-B1B9-59BBB119348E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96E9A9C4-D316-4304-B1B9-59BBB119348E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96E9A9C4-D316-4304-B1B9-59BBB119348E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96E9A9C4-D316-4304-B1B9-59BBB119348E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +113,7 @@ Global
 		{2CBC7BB9-704E-4917-81B6-46DBCD38C3A5} = {789996D7-300C-40DA-9929-2401816BCD68}
 		{7EE79C77-D1B1-4F5E-AA89-BC4B81027016} = {789996D7-300C-40DA-9929-2401816BCD68}
 		{A6231FDF-B139-4B3F-8A18-73337D52E08F} = {789996D7-300C-40DA-9929-2401816BCD68}
+		{96E9A9C4-D316-4304-B1B9-59BBB119348E} = {84E70667-BB30-4A8B-B440-0838FF74DD99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {280C120D-857B-4F71-8BB8-02BACFAF83C5}
